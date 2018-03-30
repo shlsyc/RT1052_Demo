@@ -10,6 +10,8 @@
   */
   
 #include "Hal_Lcd.h"
+#include "Hal_Lcd_Port.h"
+
 #include "fsl_iomuxc.h"
 #include "fsl_gpio.h" 
 #include "fsl_pxp.h"
@@ -46,6 +48,9 @@ AT_NONCACHEABLE_SECTION_ALIGN(static uint32_t s_psBufferPxp[PS_HEIGHT][PS_WIDTH]
 
 pxp_output_buffer_config_t outputBufferConfig;
 
+uint32_t ulCurrentFrameBuffer;
+uint8_t ucCurrentLayer;
+
 /******************************************************************************
  *函数名称：Hal_Lcd_Init
  *功能描述：LCD 初始化
@@ -57,6 +62,10 @@ void Hal_Lcd_Init()
 {
     Hal_Lcd_PinInit();
     Hal_Lcd_PixelClockInit();
+    Hal_Lcd_InitRGB();
+    Hal_Lcd_InitPXP();
+    
+    Hal_Lcd_SetLayer(LCD_LAYER_1);
 }
 
 /******************************************************************************
@@ -275,13 +284,13 @@ void Hal_Lcd_InitPXP()
 }
 
 /******************************************************************************
- *函数名称：Hal_Lcd_InitScaleBuffer
+ *函数名称：Hal_Lcd_InitBuffer
  *功能描述：LCD 初始化缓存
  *参数说明：无
  *返 回 值：无
  *注意事项：无
  */
-static void Hal_Lcd_InitScaleBuffer(void)
+void Hal_Lcd_InitBuffer(void)
 {
     uint32_t i, j;
 
@@ -302,33 +311,238 @@ static void Hal_Lcd_InitScaleBuffer(void)
      *  |             |             |
      *  -----------------------------
      */
-    for (i = 0; i < (PS_HEIGHT / 2); i++)
-    {
-        for (j = 0; j < (PS_WIDTH / 2); j++)
-        {
-            s_psBufferPxp[i][j] = 0xFFU;
-        }
+//    for (i = 0; i < (PS_HEIGHT / 2); i++)
+//    {
+//        for (j = 0; j < (PS_WIDTH / 2); j++)
+//        {
+//            s_psBufferPxp[i][j] = 0xFFU;
+//        }
 
-        for (; j < PS_WIDTH; j++)
+//        for (; j < PS_WIDTH; j++)
+//        {
+//            s_psBufferPxp[i][j] = 0xFF00U;
+//        }
+//    }
+
+//    for (; i < PS_HEIGHT; i++)
+//    {
+//        for (j = 0; j < (PS_WIDTH / 2); j++)
+//        {
+//            s_psBufferPxp[i][j] = 0xFFFFFFU;
+//        }
+
+//        for (; j < PS_WIDTH; j++)
+//        {
+//            s_psBufferPxp[i][j] = 0xFF0000U;
+//        }
+//    }
+
+//    for (i = 0; i < (PS_HEIGHT / 2); i++)
+//    {
+//        for (j = 0; j < (PS_WIDTH / 2); j++)
+//        {
+//            s_psBufferLcd[0][i][j] = 0xFFU;
+//        }
+
+//        for (; j < PS_WIDTH; j++)
+//        {
+//            s_psBufferLcd[0][i][j] = 0xFF00U;
+//        }
+//    }
+
+//    for (; i < PS_HEIGHT; i++)
+//    {
+//        for (j = 0; j < (PS_WIDTH / 2); j++)
+//        {
+//            s_psBufferLcd[0][i][j] = 0xFFFFFFU;
+//        }
+
+//        for (; j < PS_WIDTH; j++)
+//        {
+//            s_psBufferLcd[0][i][j] = 0xFF0000U;
+//        }
+//    }
+
+    memset(s_psBufferLcd, 0xFFFF, sizeof(s_psBufferLcd));
+}
+
+/******************************************************************************
+ *函数名称：Hal_Lcd_SetLayer
+ *功能描述：切换层。只是更改程序变量，以便于后面的代码更改相关寄存器。硬件支持2层。
+ *参数说明：无
+ *返 回 值：无
+ *注意事项：
+ */
+void Hal_Lcd_SetLayer(uint8_t _ucLayer)
+{
+    if (_ucLayer == LCD_LAYER_1)
+    {
+        ulCurrentFrameBuffer = (uint32_t)s_psBufferLcd[0];
+        ucCurrentLayer = LCD_LAYER_1;
+    }
+    else if (_ucLayer == LCD_LAYER_2)
+    {
+        ulCurrentFrameBuffer = (uint32_t)s_psBufferLcd[1];
+        ucCurrentLayer = LCD_LAYER_2;
+    }
+}
+
+/******************************************************************************
+ *函数名称：Hal_Lcd_SetDirection
+ *功能描述：设置显示屏显示方向（横屏 竖屏）
+ *参数说明：显示方向代码 0 横屏正常, 1=横屏180度翻转, 2=竖屏, 3=竖屏180度翻转
+ *返 回 值：无
+ *注意事项：
+ */
+void Hal_Lcd_SetDirection(uint8_t _dir)
+{
+    uint16_t temp;
+
+    if (_dir == 0 || _dir == 1)         /* 横屏， 横屏180度 */
+    {
+        if (xLCD_Dev.usWidth < xLCD_Dev.usHeight)
         {
-            s_psBufferPxp[i][j] = 0xFF00U;
+            temp = xLCD_Dev.usWidth;
+            xLCD_Dev.usWidth = xLCD_Dev.usHeight;
+            xLCD_Dev.usHeight = temp;
         }
     }
-
-    for (; i < PS_HEIGHT; i++)
+    else if (_dir == 2 || _dir == 3)    /* 竖屏, 竖屏180°*/
     {
-        for (j = 0; j < (PS_WIDTH / 2); j++)
+        if (xLCD_Dev.usWidth > xLCD_Dev.usHeight)
         {
-            s_psBufferPxp[i][j] = 0xFFFFFFU;
-        }
-
-        for (; j < PS_WIDTH; j++)
-        {
-            s_psBufferPxp[i][j] = 0xFF0000U;
+            temp = xLCD_Dev.usWidth;
+            xLCD_Dev.usWidth = xLCD_Dev.usHeight;
+            xLCD_Dev.usHeight = temp;
         }
     }
+}
 
-    memset(s_psBufferLcd, 0, sizeof(s_psBufferLcd));
+/******************************************************************************
+ *函数名称：Hal_Lcd_GetPixel
+ *功能描述：读1个像素
+ *参数说明：无
+ *返 回 值：无
+ *注意事项：
+ */
+uint32_t Hal_Lcd_GetPixel(uint16_t _usX, uint16_t _usY)
+{
+    uint32_t ulRGB;
+    uint32_t *p;
+    uint32_t index = 0;
+
+    p = (uint32_t *)ulCurrentFrameBuffer;
+
+    if (xLCD_Dev.ucDirection == 0)      /* 横屏 */
+    {
+        index = (uint32_t)_usY * xLCD_Dev.usWidth + _usX;
+    }
+    else if (xLCD_Dev.ucDirection == 1) /* 横屏180°*/
+    {
+        index = (uint32_t)(xLCD_Dev.usHeight - _usY - 1) * xLCD_Dev.usWidth + (xLCD_Dev.usWidth - _usX - 1);
+    }
+    else if (xLCD_Dev.ucDirection == 2) /* 竖屏 */
+    {
+        index = (uint32_t)(xLCD_Dev.usWidth - _usX - 1) * xLCD_Dev.usHeight + _usY;
+    }
+    else if (xLCD_Dev.ucDirection == 3) /* 竖屏180° */
+    {
+        index = (uint32_t)_usX * xLCD_Dev.usHeight + xLCD_Dev.usHeight - _usY - 1;
+    }
+
+    ulRGB = p[index];
+
+    return ulRGB;
+}
+
+/******************************************************************************
+ *函数名称：Hal_Lcd_PutPixel
+ *功能描述：画1个像素
+ *参数说明：无
+ *返 回 值：无
+ *注意事项：
+ */
+void Hal_Lcd_PutPixel(uint16_t _usX, uint16_t _usY, uint32_t _usColor)
+{
+    uint32_t *p;
+    uint32_t index = 0;
+
+    p = (uint32_t *)ulCurrentFrameBuffer;
+
+    if (xLCD_Dev.ucDirection == 0)      /* 横屏 */
+    {
+        index = (uint32_t)_usY * xLCD_Dev.usWidth + _usX;
+    }
+    else if (xLCD_Dev.ucDirection == 1) /* 横屏180°*/
+    {
+        index = (uint32_t)(xLCD_Dev.usHeight - _usY - 1) * xLCD_Dev.usWidth + (xLCD_Dev.usWidth - _usX - 1);
+    }
+    else if (xLCD_Dev.ucDirection == 2) /* 竖屏 */
+    {
+        index = (uint32_t)(xLCD_Dev.usWidth - _usX - 1) * xLCD_Dev.usHeight + _usY;
+    }
+    else if (xLCD_Dev.ucDirection == 3) /* 竖屏180° */
+    {
+        index = (uint32_t)_usX * xLCD_Dev.usHeight + xLCD_Dev.usHeight - _usY - 1;
+    }
+
+    if (index < xLCD_Dev.usHeight * xLCD_Dev.usWidth)
+    {
+        p[index] = _usColor;
+    }
+}
+
+/******************************************************************************
+ *函数名称：Hal_Lcd_FillRect
+ *功能描述：用一个颜色值填充一个矩形
+ *参数说明：无
+ *返 回 值：无
+ *注意事项：
+ */
+void Hal_Lcd_FillRect(uint16_t usX, uint16_t usY, uint16_t usHeight, uint16_t usWidth, uint32_t usColor)
+{
+    
+}
+
+/******************************************************************************
+ *函数名称：Hal_Lcd_DrawCircle
+ *功能描述：绘制一个圆，笔宽为1个像素
+ *参数说明：圆心的坐标-圆的半径
+ *返 回 值：无
+ *注意事项：
+ */
+void Hal_Lcd_DrawCircle(uint16_t _usX, uint16_t _usY, uint16_t _usRadius, uint32_t _usColor)
+{
+    int32_t  D;         /* Decision Variable */
+    uint32_t  CurX;     /* 当前 X 值 */
+    uint32_t  CurY;     /* 当前 Y 值 */
+
+    D = 3 - (_usRadius << 1);
+    CurX = 0;
+    CurY = _usRadius;
+
+    while (CurX <= CurY)
+    {
+        Hal_Lcd_PutPixel(_usX + CurX, _usY + CurY, _usColor);
+        Hal_Lcd_PutPixel(_usX + CurX, _usY - CurY, _usColor);
+        Hal_Lcd_PutPixel(_usX - CurX, _usY + CurY, _usColor);
+        Hal_Lcd_PutPixel(_usX - CurX, _usY - CurY, _usColor);
+        Hal_Lcd_PutPixel(_usX + CurY, _usY + CurX, _usColor);
+        Hal_Lcd_PutPixel(_usX + CurY, _usY - CurX, _usColor);
+        Hal_Lcd_PutPixel(_usX - CurY, _usY + CurX, _usColor);
+        Hal_Lcd_PutPixel(_usX - CurY, _usY - CurX, _usColor);
+
+        if (D < 0)
+        {
+            D += (CurX << 2) + 6;
+        }
+        else
+        {
+            D += ((CurX - CurY) << 2) + 10;
+            CurY--;
+        }
+        CurX++;
+    }
 }
 
 /******************************************************************************
@@ -400,9 +614,8 @@ static void Hal_Lcd_ScaleTest(void)
  */
 void Hal_Lcd_Test()
 {
-    Hal_Lcd_InitScaleBuffer();
-    Hal_Lcd_InitRGB();
-    Hal_Lcd_InitPXP();
-    Hal_Lcd_ScaleTest();
+    Hal_Lcd_InitBuffer();
+    Hal_Lcd_DrawCircle(320,320,80,0xFF0000);
+//    Hal_Lcd_ScaleTest();
 }
 

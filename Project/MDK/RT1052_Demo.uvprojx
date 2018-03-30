@@ -476,6 +476,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\User\HardWare\Hal_Lcd.c</FilePath>
             </File>
+            <File>
+              <FileName>Hal_Lcd_Port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\Hal_Lcd_Port.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
@@ -798,7 +803,7 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>0</uC99>
-            <uGnu>0</uGnu>
+            <uGnu>1</uGnu>
             <useXO>0</useXO>
             <v6Lang>3</v6Lang>
             <v6LangP>3</v6LangP>
@@ -949,6 +954,11 @@
               <FileName>Hal_Lcd.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\HardWare\Hal_Lcd.c</FilePath>
+            </File>
+            <File>
+              <FileName>Hal_Lcd_Port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\Hal_Lcd_Port.c</FilePath>
             </File>
           </Files>
         </Group>
