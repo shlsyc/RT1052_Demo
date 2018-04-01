@@ -14,8 +14,8 @@
 
 LCD_Dev_t xLCD_Dev = 
 {
-    .usWidth            =           LCD_WIDTH,
-    .usHeight           =           LCD_HEIGHT,
+    .usWidth            =           IMG_WIDTH,
+    .usHeight           =           IMG_HEIGHT,
     .ucDirection        =           1,
 
     .vLCD_HardInit      =           Hal_Lcd_Init,

@@ -29,6 +29,9 @@ extern "C" {
 #define LCD_LAYER_1                                 0x0001      /* 顶层 */
 #define LCD_LAYER_2                                 0x0002      /* 第2层 */
 
+#define IMG_HEIGHT                                  480
+#define IMG_WIDTH                                   800
+
 /******************************************************************************
  *函数名称：Hal_Lcd_Init
  *功能描述：LCD 初始化

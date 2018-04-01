@@ -18,8 +18,6 @@
 #include "fsl_elcdif.h"
 #include "fsl_pxp.h"
 
-#define IMG_HEIGHT 480
-#define IMG_WIDTH 800
 #define IMG_HSW 41
 #define IMG_HFP 4
 #define IMG_HBP 8
@@ -33,15 +31,15 @@
  * Frame buffer data alignment.
  * The PXP input buffer, output buffer, and LCDIF frame buffer address 64B align.
  */
-#define FRAME_BUFFER_ALIGN 64
+#define FRAME_BUFFER_ALIGN          64
 
-#define PS_WIDTH        (IMG_WIDTH / 2U)
-#define PS_HEIGHT       (IMG_HEIGHT / 2U)
+#define PS_WIDTH                    (IMG_WIDTH / 2U)
+#define PS_HEIGHT                   (IMG_HEIGHT / 2U)
 
-#define PS_ULC_X 0U
-#define PS_ULC_Y 0U
+#define PS_ULC_X                    0U
+#define PS_ULC_Y                    0U
 
-#define PS_BPP  4U   /* Use 24-bit RGB888 format. */
+#define PS_BPP                      4U      /* Use 24-bit RGB888 format. */
     
 AT_NONCACHEABLE_SECTION_ALIGN(static uint32_t s_psBufferLcd[2][IMG_HEIGHT][IMG_WIDTH], FRAME_BUFFER_ALIGN);
 AT_NONCACHEABLE_SECTION_ALIGN(static uint32_t s_psBufferPxp[PS_HEIGHT][PS_WIDTH], FRAME_BUFFER_ALIGN);
@@ -311,57 +309,31 @@ void Hal_Lcd_InitBuffer(void)
      *  |             |             |
      *  -----------------------------
      */
-//    for (i = 0; i < (PS_HEIGHT / 2); i++)
-//    {
-//        for (j = 0; j < (PS_WIDTH / 2); j++)
-//        {
-//            s_psBufferPxp[i][j] = 0xFFU;
-//        }
+    for (i = 0; i < (PS_HEIGHT / 2); i++)
+    {
+        for (j = 0; j < (PS_WIDTH / 2); j++)
+        {
+            s_psBufferPxp[i][j] = 0xFFU;
+        }
 
-//        for (; j < PS_WIDTH; j++)
-//        {
-//            s_psBufferPxp[i][j] = 0xFF00U;
-//        }
-//    }
+        for (; j < PS_WIDTH; j++)
+        {
+            s_psBufferPxp[i][j] = 0xFF00U;
+        }
+    }
 
-//    for (; i < PS_HEIGHT; i++)
-//    {
-//        for (j = 0; j < (PS_WIDTH / 2); j++)
-//        {
-//            s_psBufferPxp[i][j] = 0xFFFFFFU;
-//        }
+    for (; i < PS_HEIGHT; i++)
+    {
+        for (j = 0; j < (PS_WIDTH / 2); j++)
+        {
+            s_psBufferPxp[i][j] = 0xFFFFFFU;
+        }
 
-//        for (; j < PS_WIDTH; j++)
-//        {
-//            s_psBufferPxp[i][j] = 0xFF0000U;
-//        }
-//    }
-
-//    for (i = 0; i < (PS_HEIGHT / 2); i++)
-//    {
-//        for (j = 0; j < (PS_WIDTH / 2); j++)
-//        {
-//            s_psBufferLcd[0][i][j] = 0xFFU;
-//        }
-
-//        for (; j < PS_WIDTH; j++)
-//        {
-//            s_psBufferLcd[0][i][j] = 0xFF00U;
-//        }
-//    }
-
-//    for (; i < PS_HEIGHT; i++)
-//    {
-//        for (j = 0; j < (PS_WIDTH / 2); j++)
-//        {
-//            s_psBufferLcd[0][i][j] = 0xFFFFFFU;
-//        }
-
-//        for (; j < PS_WIDTH; j++)
-//        {
-//            s_psBufferLcd[0][i][j] = 0xFF0000U;
-//        }
-//    }
+        for (; j < PS_WIDTH; j++)
+        {
+            s_psBufferPxp[i][j] = 0xFF0000U;
+        }
+    }
 
     memset(s_psBufferLcd, 0xFFFF, sizeof(s_psBufferLcd));
 }
@@ -552,7 +524,7 @@ void Hal_Lcd_DrawCircle(uint16_t _usX, uint16_t _usY, uint16_t _usRadius, uint32
  *返 回 值：无
  *注意事项：无
  */
-static void Hal_Lcd_ScaleTest(void)
+void Hal_Lcd_ScaleTest(void)
 {
     uint8_t curLcdBufferIdx = 1U;
 

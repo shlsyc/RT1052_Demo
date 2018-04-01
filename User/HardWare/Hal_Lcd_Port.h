@@ -18,8 +18,6 @@ extern "C" {
     
 #include "SysConf.h"
     
-#define LCD_WIDTH                   800
-#define LCD_HEIGHT                  480
 
 /* 背景光控制 */
 #define BRIGHT_MAM                  255
@@ -83,14 +81,26 @@ typedef CL24_t CL_t;
 #error "Invalid LV_COLOR_DEPTH in misc_conf.h! Set it to 1, 8, 16 or 24!"
 #endif
 
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #if CL_DEPTH == 1
-#define RGB(r8, g8, b8) ((lv_color_t){(r8 >> 7 | g8 >> 7 | b8 >> 7)})
+#define COLOR_MAKE(r8, g8, b8) ((CL_t){(b8 >> 7 | g8 >> 7 | r8 >> 7)})
 #elif CL_DEPTH == 8
-#define RGB(r8, g8, b8) ((lv_color_t){{r8 >> 6, g8 >> 5, b8 >> 5}})
+#define COLOR_MAKE(r8, g8, b8) ((CL_t){{b8 >> 6, g8 >> 5, r8 >> 5}})
 #elif CL_DEPTH == 16
-#define RGB(r8, g8, b8) ((lv_color_t){{r8 >> 3, g8 >> 2, b8 >> 3}})
+#define COLOR_MAKE(r8, g8, b8) ((CL_t){{b8 >> 3, g8 >> 2, r8 >> 3}})
 #elif CL_DEPTH == 24
-#define RGB(r8, g8, b8) ((CL_t){{0xff, r8, g8, b8}})            /*Fix 0xff alpha*/
+#define COLOR_MAKE(r8, g8, b8) ((CL_t){{b8, g8, r8, 0xff}})            /*Fix 0xff alpha*/
+#endif
+#else
+#if CL_DEPTH == 1
+#define COLOR_MAKE(r8, g8, b8) ((CL_t){(r8 >> 7 | g8 >> 7 | b8 >> 7)})
+#elif CL_DEPTH == 8
+#define COLOR_MAKE(r8, g8, b8) ((CL_t){{r8 >> 6, g8 >> 5, b8 >> 5}})
+#elif CL_DEPTH == 16
+#define COLOR_MAKE(r8, g8, b8) ((CL_t){{r8 >> 3, g8 >> 2, b8 >> 3}})
+#elif CL_DEPTH == 24
+#define COLOR_MAKE(r8, g8, b8) ((CL_t){{0xff, r8, g8, b8}})            /*Fix 0xff alpha*/
+#endif
 #endif
 
 /* 解码出 R=8bit G=8bit B=8bit */
@@ -103,38 +113,24 @@ typedef CL24_t CL_t;
 #define RGB565_G2(x)                ((x >> 5) & 0x3F)
 #define RGB565_B2(x)                ((x >> 0) & 0x1F)
 
-enum
-{
-    CL_WHITE            =           RGB(255,255,255),           /* 白色 */
-    CL_BLACK            =           RGB(  0,  0,  0),           /* 黑色 */
-    CL_RED              =           RGB(255,  0,  0),           /* 红色 */
-    CL_GREEN            =           RGB(  0,255,  0),           /* 绿色 */
-    CL_BLUE             =           RGB(  0,  0,255),           /* 蓝色 */
-    CL_YELLOW           =           RGB(255,255,  0),           /* 黄色 */
-
-    CL_GREY             =           RGB( 98, 98, 98),           /* 深灰色 */
-    CL_GREY1            =           RGB( 150, 150, 150),        /* 浅灰色 */
-    CL_GREY2            =           RGB( 180, 180, 180),        /* 浅灰色 */
-    CL_GREY3            =           RGB( 200, 200, 200),        /* 最浅灰色 */
-    CL_GREY4            =           RGB( 230, 230, 230),        /* 最浅灰色 */
-
-    CL_BUTTON_GREY      =           RGB( 220, 220, 220),        /* WINDOWS 按钮表面灰色 */
-
-    CL_BLUE1            =           RGB(  0,  0, 240),          /* 深蓝色 */
-    CL_BLUE2            =           RGB(  0,  0, 128),          /* 深蓝色 */
-    CL_BLUE3            =           RGB(  68, 68, 255),         /* 浅蓝色1 */
-    CL_BLUE4            =           RGB(  0, 64, 128),          /* 浅蓝色1 */
-
-    /* UI 界面 Windows控件常用色 */
-    CL_BTN_FACE         =           RGB(236, 233, 216),         /* 按钮表面颜色(灰) */
-
-    CL_BTN_FONT         =           CL_BLACK,                   /* 按钮字体颜色（黑） */
-
-    CL_BOX_BORDER1      =           RGB(172, 168,153),          /* 分组框主线颜色 */
-    CL_BOX_BORDER2      =           RGB(255, 255,255),          /* 分组框阴影线颜色 */
-
-    CL_MASK             =           0x9999                      /* 颜色掩码，用于文字背景透明 */
-};
+#define COLOR_BLACK                 COLOR_MAKE(0x00,0x00,0x00)
+#define COLOR_WHITE                 COLOR_MAKE(0xFF,0xFF,0xFF)
+#define COLOR_RED                   COLOR_MAKE(0xFF,0x00,0x00)
+#define COLOR_LIME                  COLOR_MAKE(0x00,0xFF,0x00)
+#define COLOR_BLUE                  COLOR_MAKE(0x00,0x00,0xFF)
+#define COLOR_YELLOW                COLOR_MAKE(0xFF,0xFF,0x00)
+#define COLOR_CYAN                  COLOR_MAKE(0x00,0xFF,0xFF)
+#define COLOR_AQUA                  COLOR_CYAN
+#define COLOR_MAGENTA               COLOR_MAKE(0xFF,0x00,0xFF)
+#define COLOR_SILVER                COLOR_MAKE(0xC0,0xC0,0xC0)
+#define COLOR_GRAY                  COLOR_MAKE(0x80,0x80,0x80)
+#define COLOR_MARRON                COLOR_MAKE(0x80,0x00,0x00)
+#define COLOR_OLIVE                 COLOR_MAKE(0x80,0x80,0x00)
+#define COLOR_GREEN                 COLOR_MAKE(0x00,0x80,0x00)
+#define COLOR_PURPLE                COLOR_MAKE(0x80,0x00,0x80)
+#define COLOR_TEAL                  COLOR_MAKE(0x00,0x80,0x80)
+#define COLOR_NAVY                  COLOR_MAKE(0x00,0x00,0x80)
+#define COLOR_ORANGE                COLOR_MAKE(0xFF,0xA5,0x00)
 
 typedef struct
 {
