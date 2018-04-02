@@ -587,7 +587,7 @@ void Hal_Lcd_ScaleTest(void)
 void Hal_Lcd_Test()
 {
     Hal_Lcd_InitBuffer();
-    Hal_Lcd_DrawCircle(320,320,80,0xFF0000);
+    Hal_Lcd_DrawCircle(320,320,80,color_to24(COLOR_SILVER));
 //    Hal_Lcd_ScaleTest();
 }
 

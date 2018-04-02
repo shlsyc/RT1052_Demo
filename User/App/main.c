@@ -30,7 +30,6 @@ static void prvBoardInit()
     Hal_Uart_Init(UART_CH1,38400,true);
     Hal_Lcd_Init();
     Hal_Lcd_Test();
-    printf("Hello World!:%d\r\n",SystemCoreClock);
 }
 
 /**

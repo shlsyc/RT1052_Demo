@@ -103,16 +103,6 @@ typedef CL24_t CL_t;
 #endif
 #endif
 
-/* 解码出 R=8bit G=8bit B=8bit */
-#define RGB565_R(x)                 ((x >> 8) & 0xF8)
-#define RGB565_G(x)                 ((x >> 3) & 0xFC)
-#define RGB565_B(x)                 ((x << 3) & 0xF8)
-
-/* 解码出 R=5bit G=6bit B=5bit */
-#define RGB565_R2(x)                ((x >> 11) & 0x1F)
-#define RGB565_G2(x)                ((x >> 5) & 0x3F)
-#define RGB565_B2(x)                ((x >> 0) & 0x1F)
-
 #define COLOR_BLACK                 COLOR_MAKE(0x00,0x00,0x00)
 #define COLOR_WHITE                 COLOR_MAKE(0xFF,0xFF,0xFF)
 #define COLOR_RED                   COLOR_MAKE(0xFF,0x00,0x00)
@@ -148,8 +138,119 @@ typedef struct
     void (*vFillRect)(uint16_t usX,uint16_t usY,uint16_t usHeight, uint16_t usWidth,uint32_t usColor);      /* 填充函数 */
 }LCD_Dev_t;
 extern LCD_Dev_t xLCD_Dev;
-    
-    
+
+/*In color conversations:
+ * - When converting to bigger color type the LSB weight of 1 LSB is calculated 
+ *   E.g. 16 bit Red has 5 bits
+ *         8 bit Red has 2 bits
+ *        ----------------------
+ *        8 bit red LSB = (2^5 - 1) / (2^2 - 1) = 31 / 3 = 10
+ * 
+ * - When calculating to smaller color type simply shift out the LSBs
+ *   E.g.  8 bit Red has 2 bits 
+ *        16 bit Red has 5 bits
+ *        ----------------------
+ *         Shift right with 5 - 3 = 2
+ */
+
+static inline uint8_t color_to1(CL_t color)
+{
+#if CL_DEPTH == 1
+    return color.full;
+#elif CL_DEPTH == 8
+    if((color.red   & 0x4) ||
+       (color.green & 0x4) ||
+        (color.blue  & 0x2)) {
+        return 1;
+    } else {
+        return 0;
+    }
+#elif CL_DEPTH == 16
+    if((color.red   & 0x10) ||
+       (color.green & 0x20) ||
+	   (color.blue  & 0x10)) {
+    	return 1;
+    } else {
+    	return 0;
+    }
+#elif CL_DEPTH == 24
+    if((color.red   & 0x80) ||
+       (color.green & 0x80) ||
+        (color.blue  & 0x80)) {
+        return 1;
+    } else {
+        return 0;
+    }
+#endif
+}
+
+static inline uint8_t color_to8(CL_t color)
+{
+#if CL_DEPTH == 1
+    if(color.full == 0) return 0;
+    else return 0xFF;
+#elif CL_DEPTH == 8
+    return color.full;
+#elif CL_DEPTH == 16
+    CL8_t ret;
+    ret.red = color.red >> 2;       /* 5 - 3  = 2*/
+    ret.green = color.green >> 3;   /* 6 - 3  = 3*/
+    ret.blue = color.blue >> 3;     /* 5 - 2  = 3*/
+    return ret.full;
+#elif CL_DEPTH == 24
+    CL8_t ret;
+    ret.red = color.red >> 5;       /* 8 - 3  = 5*/
+    ret.green = color.green >> 5;   /* 8 - 3  = 5*/
+    ret.blue = color.blue >> 6;     /* 8 - 2  = 6*/
+    return ret.full;
+#endif
+}
+
+static inline uint16_t color_to16(CL_t color)
+{
+#if CL_DEPTH == 1
+    if(color.full == 0) return 0;
+    else return 0xFFFF;
+#elif CL_DEPTH == 8
+    CL16_t ret;
+    ret.red = color.red * 4;       /*(2^5 - 1)/(2^3 - 1) = 31/7 = 4*/
+    ret.green = color.green * 9;   /*(2^6 - 1)/(2^3 - 1) = 63/7 = 9*/
+    ret.blue = color.blue * 10;    /*(2^5 - 1)/(2^2 - 1) = 31/3 = 10*/
+    return ret.full;
+#elif CL_DEPTH == 16
+    return color.full;
+#elif CL_DEPTH == 24
+    CL16_t ret;
+    ret.red = color.red >> 3;       /* 8 - 5  = 3*/
+    ret.green = color.green >> 2;   /* 8 - 6  = 2*/
+    ret.blue = color.blue >> 3;     /* 8 - 5  = 3*/
+    return ret.full;
+#endif
+}
+
+static inline uint32_t color_to24(CL_t color)
+{
+#if CL_DEPTH == 1
+    if(color.full == 0) return 0;
+    else return 0xFFFFFFFF;
+#elif CL_DEPTH == 8
+    CL24_t ret;
+    ret.red = color.red * 36;        /*(2^8 - 1)/(2^3 - 1) = 255/7 = 36*/
+    ret.green = color.green * 36;    /*(2^8 - 1)/(2^3 - 1) = 255/7 = 36*/
+    ret.blue = color.blue * 85;      /*(2^8 - 1)/(2^2 - 1) = 255/3 = 85*/
+    ret.alpha = 0xFF;
+    return ret.full;
+#elif CL_DEPTH == 16
+    CL24_t ret;
+    ret.red = color.red * 8;       /*(2^8 - 1)/(2^5 - 1) = 255/31 = 8*/
+    ret.green = color.green * 4;   /*(2^8 - 1)/(2^6 - 1) = 255/63 = 4*/
+    ret.blue = color.blue * 8;     /*(2^8 - 1)/(2^5 - 1) = 255/31 = 8*/
+    ret.alpha = 0xFF;
+    return ret.full;
+#elif CL_DEPTH == 24
+    return color.full;
+#endif
+}
     
     
 #ifdef __cplusplus
