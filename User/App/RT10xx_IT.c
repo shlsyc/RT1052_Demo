@@ -11,6 +11,7 @@
 
 #include "SysConf.h"
 #include "fsl_lpuart.h"
+#include "lv_hal/lv_hal_tick.h"
   
 /******************************************************************************
  *º¯ÊýÃû³Æ£ºSysTick_Handler
@@ -22,6 +23,7 @@
 void SysTick_Handler(void)
 {
     g_SysTimeTicks++;
+    lv_tick_inc(1);
 }
 
 /******************************************************************************

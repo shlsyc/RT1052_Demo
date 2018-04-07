@@ -54,6 +54,9 @@
 #define m_data_start                   0x20000000
 #define m_data_size                    0x00020000
 
+#define m_ncache_start                 0x80000000
+#define m_ncache_size                  0x01000000
+
 /* Sizes */
 #if (defined(__stack_size__))
   #define Stack_Size                   __stack_size__
@@ -74,6 +77,8 @@ LR_m_text m_text_start m_text_size {   ; load region size_region
   }
   RW_m_data m_data_start m_data_size-Stack_Size-Heap_Size { ; RW data
     .ANY (+RW +ZI)
+  }
+  RW_m_ncache m_ncache_start m_ncache_size { ; ncache RW data
     * (NonCacheable.init)
     * (NonCacheable)
   }
@@ -88,5 +93,3 @@ LR_m_interrupts m_interrupts_start m_interrupts_size {
     * (RESET,+FIRST)
   }
 }
-
-

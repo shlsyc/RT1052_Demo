@@ -21,6 +21,7 @@ extern "C" {
 #include "Hal_Led.h"
 #include "Hal_Uart.h"
 #include "Hal_Lcd.h"
+#include "Hal_Touch.h"
 
 
 
