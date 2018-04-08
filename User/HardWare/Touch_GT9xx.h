@@ -51,21 +51,6 @@ typedef enum
     GT911 = 1,
 }TOUCH_IC;
 
-typedef struct
-{
-    uint16_t ChipID;
-    uint8_t Enable;
-    uint8_t TimerCount;
-    
-    uint8_t Count;              /* 几个点按下 */
-    
-    uint16_t X[GTP_MAX_TOUCH];
-    uint16_t Y[GTP_MAX_TOUCH];
-    uint8_t id[GTP_MAX_TOUCH];
-    uint8_t Event[GTP_MAX_TOUCH];
-}Touch_GT9xx_T;
-extern Touch_GT9xx_T Touch_GT9xx;
-
 /******************************************************************************
  *函数名称：GT9xx_Init
  *功能描述：触摸面板初始化
@@ -91,7 +76,7 @@ int32_t GT9xx_ConfigPara(void);
  *返 回 值：无
  *注意事项：
  */
-int32_t GTP_Get_Info(void);
+int32_t GT9xx_Get_Info(void);
 
 /******************************************************************************
  *函数名称：GT9xx_ReadID
@@ -101,6 +86,15 @@ int32_t GTP_Get_Info(void);
  *注意事项：
  */
 int32_t GT9xx_ReadID(void);
+
+/******************************************************************************
+ *函数名称：GT9xx_Scan
+ *功能描述：读取触摸数据。读取全部的数据，需要 720us左右
+ *参数说明：无
+ *返 回 值：无
+ *注意事项：
+ */
+void GT9xx_Scan(void);
 
 #ifdef __cplusplus
 }

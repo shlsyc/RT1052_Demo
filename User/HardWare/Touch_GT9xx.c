@@ -10,6 +10,8 @@
   */
   
 #include "Touch_GT9xx.h"
+#include "Hal_Touch.h"
+#include "Hal_Lcd_Port.h"
 #include "Hal_I2C.h"
 #include "fsl_iomuxc.h"
 #include "fsl_gpio.h"  
@@ -68,17 +70,16 @@ const uint8_t CTP_CFG_GT911[] =  {
   0x00,0x00,0x00,0x00,0x24,0x01	
 };
 
-Touch_GT9xx_T Touch_GT9xx;
 uint8_t config[GTP_CONFIG_MAX_LENGTH + GTP_ADDR_LENGTH] = {GTP_REG_CONFIG_DATA >> 8, GTP_REG_CONFIG_DATA & 0xff};
 
 /******************************************************************************
- *函数名称：GTP_PinInit
+ *函数名称：GT9xx_PinInit
  *功能描述：触摸笔初始化
  *参数说明：无
  *返 回 值：无
  *注意事项：
  */
-void GTP_PinInit()
+void GT9xx_PinInit()
 {
     gpio_pin_config_t rst_int_config = 
     {
@@ -120,13 +121,13 @@ void GTP_PinInit()
 void GT9xx_Init()
 {
     Hal_I2C_Master_Init(I2C_CH1,400000U);
-    GTP_PinInit();
+    GT9xx_PinInit();
     
     GT9xx_ReadID();
     GT9xx_ConfigPara();
     SConf_DelayUS(10*1000);
 //    EnableIRQ(TOUCH_INT_IRQ);
-    GTP_Get_Info();
+    GT9xx_Get_Info();
 }
 
 /******************************************************************************
@@ -152,13 +153,13 @@ int32_t GT9xx_ReadID()
     {
         GTP_INFO("IC1 Version: %c%c%c_%02x%02x", buf[2], buf[3], buf[4], buf[7], buf[6]);
         if(buf[2] == '9' && buf[3] == '1' && buf[4] == '1')
-            Touch_GT9xx.ChipID = GT911;
+            xTouch_Dev.ChipID = GT911;
     }
     else
     {
         GTP_INFO("IC2 Version: %c%c%c%c_%02x%02x", buf[2], buf[3], buf[4], buf[5], buf[7], buf[6]);
         if(buf[2] == '9' && buf[3] == '1' && buf[4] == '5' && buf[5] == '7')
-            Touch_GT9xx.ChipID = GT9157; 
+            xTouch_Dev.ChipID = GT9157; 
     }
     return ret;
 }
@@ -180,7 +181,7 @@ int32_t GT9xx_ConfigPara()
     uint8_t check_sum = 0;
     uint8_t cfg_num = 0x80FE - 0x8047 + 1;           //需要配置的寄存器个数
     
-    if(Touch_GT9xx.ChipID == GT9157)
+    if(xTouch_Dev.ChipID == GT9157)
     {
         cfg_info =  (uint8_t *)CTP_CFG_GT9157;  //指向寄存器配置
         cfg_info_len = sizeof(CTP_CFG_GT9157) / sizeof(CTP_CFG_GT9157[0]);  //计算配置表的大小
@@ -217,13 +218,13 @@ int32_t GT9xx_ConfigPara()
 }
 
 /******************************************************************************
- *函数名称：GTP_Get_Info
+ *函数名称：GT9xx_Get_Info
  *功能描述：获取参数信息
  *参数说明：无
  *返 回 值：无
  *注意事项：
  */
-int32_t GTP_Get_Info(void)
+int32_t GT9xx_Get_Info(void)
 {
     uint8_t opr_buf[6] = {0};
     int32_t ret = 0;
@@ -261,118 +262,134 @@ int32_t GTP_Get_Info(void)
 }
 
 /******************************************************************************
- *函数名称：vFT5X06_Scan
+ *函数名称：GT9xx_Scan
  *功能描述：读取触摸数据。读取全部的数据，需要 720us左右
  *参数说明：无
  *返 回 值：无
  *注意事项：
  */
-void vFT5X06_Scan()
+uint8_t GT9xx_IsPenInt()
 {
-//    uint8_t buf[CFG_POINT_READ_BUF];
-//    uint8_t i;
-//    static uint8_t s_tp_down = 0;
-//    uint16_t x, y;
-//    static uint16_t x_save, y_save;
+    return 1;
+}
 
-//    if (Touch_GT9xx.Enable == 0)
-//    {
-//        return;
-//    }
-//    
-//    Touch_GT9xx.TimerCount++;
-//    /* 10ms 执行一次 */
-//    if (Touch_GT9xx.TimerCount < 10)
-//    {
-//        return;
-//    }    
+/******************************************************************************
+ *函数名称：GT9xx_Scan
+ *功能描述：读取触摸数据。读取全部的数据，需要 720us左右
+ *参数说明：无
+ *返 回 值：无
+ *注意事项：
+ */
+void GT9xx_Scan()
+{
+    uint8_t buf[44] = {GTP_READ_COOR_ADDR >> 8, GTP_READ_COOR_ADDR & 0xFF};
+    uint8_t i;
+    static uint8_t s_tp_down = 0;
+    uint16_t x, y;
+    static uint16_t x_save, y_save;
 
-//    if (ucFT5X06_PenInt() == 0)
-//    {
-//        return;
-//    }
-//    
-//    Touch_GT9xx.TimerCount = 0;
+    if (xTouch_Dev.Enable == 0)
+    {
+        return;
+    }
+    
+    xTouch_Dev.TimerCount++;
+    /* 10ms 执行一次 */
+    if (xTouch_Dev.TimerCount < 10)
+    {
+        return;
+    }    
 
-//    ucFT5X06_ReadReg(2, buf, 1);	
-//    if ((buf[0] & 0x07) == 0)
-//    {
-//        if (s_tp_down == 1)
-//        {
-//            s_tp_down = 0;
-//            vTouch_PutKey(TOUCH_RELEASE, x_save, y_save);	/* 释放 */
-//        }
-//        return;
-//    }
+    if (GT9xx_IsPenInt() == 0)
+    {
+        return;
+    }
+    
+    xTouch_Dev.TimerCount = 0;
 
-//    /* 有触摸，读取完整的数据 */
-//    ucFT5X06_ReadReg(0, buf, CFG_POINT_READ_BUF);
-//    
-//    Touch_GT9xx.Count = buf[2] & 0x07; 
-//    if (Touch_GT9xx.Count > FT5X06_TOUCH_POINTS)
-//    {
-//        Touch_GT9xx.Count = FT5X06_TOUCH_POINTS;
-//    }
-//    
-//    Touch_GT9xx.Count = 0;
-//    for (i = 0; i < FT5X06_TOUCH_POINTS; i++)
-//    {
-//        uint8_t pointid;
-//        
-//        pointid = (buf[5 + 6*i]) >> 4;
-//        if (pointid >= 0x0f)
-//        {
-//            break;
-//        }
-//        else
-//        {
-//            Touch_GT9xx.Count++;
-//            Touch_GT9xx.X[i] = (int16_t)(buf[3 + 6*i] & 0x0F)<<8 | (int16_t)buf[4 + 6*i];
-//            Touch_GT9xx.Y[i] = (int16_t)(buf[5 + 6*i] & 0x0F)<<8 | (int16_t)buf[6 + 6*i];
-//            Touch_GT9xx.Event[i] = buf[0x3 + 6*i] >> 6;
-//            Touch_GT9xx.id[i] = (buf[5 + 6*i])>>4;
-//        }
-//    }
-//    
-//    /* 检测按下 */
-//    if (Touch_GT9xx.ChipID == 0x55)       /* 4.3寸 480 * 272 */
-//    {
-//        x = Touch_GT9xx.Y[0];
-//        y = Touch_GT9xx.X[0];	
-//        
-//        /* 判断值域 */
-//        if (x > 479)
-//        {
-//            x = 479;
-//        }
-//        
-//        if (y > 271)
-//        {
-//            y = 271;
-//        }			
-//    }
-//    
-//    if (s_tp_down == 0)
-//    {
-//        s_tp_down = 1;
-//        
-//        vTouch_PutKey(TOUCH_DOWN, x, y);
-//    }
-//    else
-//    {
-//        vTouch_PutKey(TOUCH_MOVE, x, y);
-//    }
-//    x_save = x;	/* 保存坐标，用于释放事件 */
-//    y_save = y;
-//    
-//#if 0  /* 打印5个坐标点数据 */	
-//	printf("(%5d,%5d,%3d,%3d) ",  xFT5X06.X[0], xFT5X06.Y[0], xFT5X06.Event[0],  xFT5X06.id[0]);
-//	printf("(%5d,%5d,%3d,%3d) ",  xFT5X06.X[1], xFT5X06.Y[1], xFT5X06.Event[1],  xFT5X06.id[1]);
-//	printf("(%5d,%5d,%3d,%3d) ",  xFT5X06.X[2], xFT5X06.Y[2], xFT5X06.Event[2],  xFT5X06.id[2]);
-//	printf("(%5d,%5d,%3d,%3d) ",  xFT5X06.X[3], xFT5X06.Y[3], xFT5X06.Event[3],  xFT5X06.id[3]);
-//	printf("(%5d,%5d,%3d,%3d) ",  xFT5X06.X[4], xFT5X06.Y[4], xFT5X06.Event[4],  xFT5X06.id[4]);
-//	printf("\r\n");
-//#endif
+    I2C_Transfer_Read(I2C_CH1,GTP_ADDR, buf, GTP_ADDR_LENGTH, 3);
+    if ((buf[GTP_ADDR_LENGTH] & 0x80) == 0)     /* 坐标未就绪，数据无效 */
+    {
+        return;
+    }
+    
+    if ((buf[GTP_ADDR_LENGTH] & 0x0F) == 0)     /* 坐标点数 */
+    {
+        if (s_tp_down == 1)
+        {
+            s_tp_down = 0;
+            xTouch.Touch_PutKey(TOUCH_RELEASE, x_save, y_save);   /* 释放 */
+        }
+        return;
+    }
+
+    /* 有触摸，读取完整的数据 */
+    I2C_Transfer_Read(I2C_CH1,GTP_ADDR, buf, GTP_ADDR_LENGTH,44);
+    
+    xTouch_Dev.Count = buf[GTP_ADDR_LENGTH] & 0x0F; 
+    if (xTouch_Dev.Count > TOUCH_MAX_POINTS)
+    {
+        xTouch_Dev.Count = TOUCH_MAX_POINTS;
+    }
+    
+    xTouch_Dev.Count = 0;
+    for (i = 0; i < TOUCH_MAX_POINTS; i++)
+    {
+        uint8_t pointid;
+        
+        pointid = (buf[3 + 8*i]) >> 4;
+        if (pointid >= 0x0f)
+        {
+            break;
+        }
+        else
+        {
+            xTouch_Dev.Count++;
+            xTouch_Dev.X[i] = (int16_t)(buf[5 + 8*i] & 0x0F)<<8 | (int16_t)buf[4 + 8*i];
+            xTouch_Dev.Y[i] = (int16_t)(buf[7 + 8*i] & 0x0F)<<8 | (int16_t)buf[6 + 8*i];
+            xTouch_Dev.id[i] = (buf[3 + 8*i])>>4;
+        }
+    }
+    
+    /* 检测按下 */
+    if (xTouch_Dev.ChipID == GT9157)
+    {
+        x = xTouch_Dev.X[0];
+        y = xTouch_Dev.Y[0];
+        
+        /* 判断值域 */
+        if (x > (GTP_MAX_WIDTH - 1))
+        {
+            x = GTP_MAX_WIDTH - 1;
+        }
+        
+        if (y > (GTP_MAX_HEIGHT - 1))
+        {
+            y = GTP_MAX_HEIGHT - 1;
+        } 
+    }
+    
+    if (s_tp_down == 0)
+    {
+        s_tp_down = 1;
+        
+        xTouch.Touch_PutKey(TOUCH_DOWN, x, y);
+    }
+    else
+    {
+        xTouch.Touch_PutKey(TOUCH_MOVE, x, y);
+    }
+    x_save = x;     /* 保存坐标，用于释放事件 */
+    y_save = y;
+    
+#if 0  /* 打印5个坐标点数据 */	
+	printf("(%5d,%5d,%3d) ",  xTouch_Dev.X[0], xTouch_Dev.Y[0], xFT5X06.id[0]);
+	printf("(%5d,%5d,%3d) ",  xTouch_Dev.X[1], xTouch_Dev.Y[1], xFT5X06.id[1]);
+	printf("(%5d,%5d,%3d) ",  xTouch_Dev.X[2], xTouch_Dev.Y[2], xFT5X06.id[2]);
+	printf("(%5d,%5d,%3d) ",  xTouch_Dev.X[3], xTouch_Dev.Y[3], xFT5X06.id[3]);
+	printf("(%5d,%5d,%3d) ",  xTouch_Dev.X[4], xTouch_Dev.Y[4], xFT5X06.id[4]);
+	printf("\r\n");
+#endif
 }
 
 void TOUCH_IRQ_HANDLER(void)
