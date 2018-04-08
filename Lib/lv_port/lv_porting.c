@@ -43,6 +43,7 @@
 #include "lv_apps/demo/demo.h"
 #include "lv_tests/lv_test_theme/lv_test_theme.h"
 #include "Hal_Lcd_Port.h"
+#include "Hal_Touch.h"
 
 /*********************
  *      DEFINES
@@ -129,9 +130,9 @@ void lv_porting(void)
     lv_indev_drv_register(&indev_drv);              /*Finally register the driver*/
 
     /* SHL */
-//    demo_create();          
-    lv_theme_t * th = lv_theme_night_init(210, NULL);      /*Hue: 210; Font: NULL (default)*/
-    lv_test_theme_1(th);
+    demo_create();          
+//    lv_theme_t * th = lv_theme_night_init(210, NULL);      /*Hue: 210; Font: NULL (default)*/
+//    lv_test_theme_1(th);
 
     /*************************************
      * Run the task handler of LittlevGL
@@ -246,25 +247,25 @@ static bool ex_tp_read(lv_indev_data_t *data)
     /* data->point.x = tp_x; */
     /* data->point.y = tp_y; */
 
-//    uint8_t ucTouch;    /* 触摸事件 */
-//    ucTouch = ucTouch_GetKey(&data->point.x,&data->point.y);
-//    if(TOUCH_NONE != ucTouch)
-//    {
-//        switch(ucTouch)
-//        {
-//            case TOUCH_DOWN:
-//                data->state = LV_INDEV_STATE_PR;
-//                break;
-//            case TOUCH_RELEASE:
-//                data->state = LV_INDEV_STATE_REL;
-//                break;
-//            case TOUCH_MOVE:
-//                data->state = LV_INDEV_STATE_PR;
-//                return true;
-//            default:
-//                break;
-//        }
-//    }
+    uint8_t ucTouch;    /* 触摸事件 */
+    ucTouch = xTouch.Touch_GetKey(&data->point.x,&data->point.y);
+    if(TOUCH_NONE != ucTouch)
+    {
+        switch(ucTouch)
+        {
+            case TOUCH_DOWN:
+                data->state = LV_INDEV_STATE_PR;
+                break;
+            case TOUCH_RELEASE:
+                data->state = LV_INDEV_STATE_REL;
+                break;
+            case TOUCH_MOVE:
+                data->state = LV_INDEV_STATE_PR;
+                return true;
+            default:
+                break;
+        }
+    }
 
     return false;   /*false: no more data to read because we are no buffering*/
 }

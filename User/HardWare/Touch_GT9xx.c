@@ -70,6 +70,7 @@ const uint8_t CTP_CFG_GT911[] =  {
   0x00,0x00,0x00,0x00,0x24,0x01	
 };
 
+volatile bool TouchPadInputSignal = false;
 uint8_t config[GTP_CONFIG_MAX_LENGTH + GTP_ADDR_LENGTH] = {GTP_REG_CONFIG_DATA >> 8, GTP_REG_CONFIG_DATA & 0xff};
 
 /******************************************************************************
@@ -126,8 +127,11 @@ void GT9xx_Init()
     GT9xx_ReadID();
     GT9xx_ConfigPara();
     SConf_DelayUS(10*1000);
-//    EnableIRQ(TOUCH_INT_IRQ);
+    EnableIRQ(TOUCH_INT_IRQ);
     GT9xx_Get_Info();
+    
+    xTouch_Dev.TimerCount = 0;
+    xTouch_Dev.Enable = 1;
 }
 
 /******************************************************************************
@@ -270,7 +274,7 @@ int32_t GT9xx_Get_Info(void)
  */
 uint8_t GT9xx_IsPenInt()
 {
-    return 1;
+    return TouchPadInputSignal;
 }
 
 /******************************************************************************
@@ -282,10 +286,12 @@ uint8_t GT9xx_IsPenInt()
  */
 void GT9xx_Scan()
 {
-    uint8_t buf[44] = {GTP_READ_COOR_ADDR >> 8, GTP_READ_COOR_ADDR & 0xFF};
     uint8_t i;
-    static uint8_t s_tp_down = 0;
     uint16_t x, y;
+    uint8_t touchPoints;
+    uint8_t end_cmd[3] = {GTP_READ_COOR_ADDR >> 8, GTP_READ_COOR_ADDR & 0xFF, 0};
+    uint8_t buf[44] = {GTP_READ_COOR_ADDR >> 8, GTP_READ_COOR_ADDR & 0xFF};
+    static uint8_t s_tp_down = 0;
     static uint16_t x_save, y_save;
 
     if (xTouch_Dev.Enable == 0)
@@ -305,12 +311,13 @@ void GT9xx_Scan()
         return;
     }
     
+    TouchPadInputSignal = false;
     xTouch_Dev.TimerCount = 0;
 
     I2C_Transfer_Read(I2C_CH1,GTP_ADDR, buf, GTP_ADDR_LENGTH, 3);
     if ((buf[GTP_ADDR_LENGTH] & 0x80) == 0)     /* 坐标未就绪，数据无效 */
     {
-        return;
+        goto exit_work_func;
     }
     
     if ((buf[GTP_ADDR_LENGTH] & 0x0F) == 0)     /* 坐标点数 */
@@ -320,35 +327,25 @@ void GT9xx_Scan()
             s_tp_down = 0;
             xTouch.Touch_PutKey(TOUCH_RELEASE, x_save, y_save);   /* 释放 */
         }
-        return;
+        goto exit_work_func;
     }
 
     /* 有触摸，读取完整的数据 */
     I2C_Transfer_Read(I2C_CH1,GTP_ADDR, buf, GTP_ADDR_LENGTH,44);
     
-    xTouch_Dev.Count = buf[GTP_ADDR_LENGTH] & 0x0F; 
-    if (xTouch_Dev.Count > TOUCH_MAX_POINTS)
+    touchPoints = buf[GTP_ADDR_LENGTH] & 0x0F; 
+    if (touchPoints > TOUCH_MAX_POINTS)
     {
-        xTouch_Dev.Count = TOUCH_MAX_POINTS;
+        touchPoints = TOUCH_MAX_POINTS;
     }
     
     xTouch_Dev.Count = 0;
-    for (i = 0; i < TOUCH_MAX_POINTS; i++)
+    for (i = 0; i < touchPoints; i++)
     {
-        uint8_t pointid;
-        
-        pointid = (buf[3 + 8*i]) >> 4;
-        if (pointid >= 0x0f)
-        {
-            break;
-        }
-        else
-        {
-            xTouch_Dev.Count++;
-            xTouch_Dev.X[i] = (int16_t)(buf[5 + 8*i] & 0x0F)<<8 | (int16_t)buf[4 + 8*i];
-            xTouch_Dev.Y[i] = (int16_t)(buf[7 + 8*i] & 0x0F)<<8 | (int16_t)buf[6 + 8*i];
-            xTouch_Dev.id[i] = (buf[3 + 8*i])>>4;
-        }
+        xTouch_Dev.Count++;
+        xTouch_Dev.X[i] = (int16_t)(buf[5 + 8*i] & 0x0F)<<8 | (int16_t)buf[4 + 8*i];
+        xTouch_Dev.Y[i] = (int16_t)(buf[7 + 8*i] & 0x0F)<<8 | (int16_t)buf[6 + 8*i];
+        xTouch_Dev.id[i] = (buf[3 + 8*i])>>4;
     }
     
     /* 检测按下 */
@@ -382,21 +379,24 @@ void GT9xx_Scan()
     x_save = x;     /* 保存坐标，用于释放事件 */
     y_save = y;
     
-#if 0  /* 打印5个坐标点数据 */	
-	printf("(%5d,%5d,%3d) ",  xTouch_Dev.X[0], xTouch_Dev.Y[0], xFT5X06.id[0]);
-	printf("(%5d,%5d,%3d) ",  xTouch_Dev.X[1], xTouch_Dev.Y[1], xFT5X06.id[1]);
-	printf("(%5d,%5d,%3d) ",  xTouch_Dev.X[2], xTouch_Dev.Y[2], xFT5X06.id[2]);
-	printf("(%5d,%5d,%3d) ",  xTouch_Dev.X[3], xTouch_Dev.Y[3], xFT5X06.id[3]);
-	printf("(%5d,%5d,%3d) ",  xTouch_Dev.X[4], xTouch_Dev.Y[4], xFT5X06.id[4]);
-	printf("\r\n");
+#if 0  /* 打印5个坐标点数据 */
+    printf("\r\n");
+    for(i = 0; i < touchPoints; i++)
+    {
+        printf("(%5d,%5d,%3d) ",  xTouch_Dev.X[i], xTouch_Dev.Y[i], xTouch_Dev.id[i]);
+    }
+    printf("\r\n");
 #endif
+    
+exit_work_func:
+    I2C_Transfer_Write(I2C_CH1,GTP_ADDR, end_cmd, 3);
 }
 
 void TOUCH_IRQ_HANDLER(void)
 { 
     /* clear the interrupt status */
     GPIO_PortClearInterruptFlags(TOUCH_INT_GPIO, 1U << TOUCH_INT_GPIO_PIN);
-
+    TouchPadInputSignal = true;
     /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
       exception return operation might vector to incorrect interrupt */
 #if defined __CORTEX_M && (__CORTEX_M == 4U)

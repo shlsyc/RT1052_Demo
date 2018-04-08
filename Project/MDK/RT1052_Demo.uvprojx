@@ -651,6 +651,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Lib\lvgl\lv_misc\lv_ufs.c</FilePath>
             </File>
+            <File>
+              <FileName>lv_code_convert.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Lib\lvgl\lv_misc\lv_code_convert.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1589,6 +1594,11 @@
               <FileName>lv_ufs.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Lib\lvgl\lv_misc\lv_ufs.c</FilePath>
+            </File>
+            <File>
+              <FileName>lv_code_convert.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Lib\lvgl\lv_misc\lv_code_convert.c</FilePath>
             </File>
           </Files>
         </Group>

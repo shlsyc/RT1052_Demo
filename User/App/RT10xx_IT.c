@@ -10,6 +10,7 @@
   */
 
 #include "SysConf.h"
+#include "Hal_Touch.h"
 #include "fsl_lpuart.h"
 #include "lv_hal/lv_hal_tick.h"
   
@@ -24,6 +25,8 @@ void SysTick_Handler(void)
 {
     g_SysTimeTicks++;
     lv_tick_inc(1);
+    if(xTouch_Dev.Enable)
+        xTouch.Touch_CapScan();
 }
 
 /******************************************************************************

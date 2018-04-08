@@ -31,7 +31,6 @@ static void prvBoardInit()
     Hal_Uart_Init(UART_CH1,115200,true);
     Hal_Lcd_Init();
     Hal_Touch_Init();
-//    Hal_Lcd_Test();
 }
 
 /**
@@ -48,7 +47,6 @@ int main(void)
     while(1)
     {
         HalLedUpdate();
-        printf("Hello World!:%d\r\n",SystemCoreClock);
         SConf_DelayUS(200*1000);
     }
 }

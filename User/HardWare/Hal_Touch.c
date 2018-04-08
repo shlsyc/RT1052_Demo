@@ -30,6 +30,8 @@ void Hal_Touch_Init(void)
     
     xTouch.Touch_GetKey = Hal_Touch_GetKey;
     xTouch.Touch_PutKey = Hal_Touch_PutKey;
+    
+    xTouch.Touch_HardInit();
 }
 
 /******************************************************************************
