@@ -21,13 +21,13 @@
  *返 回 值：无
  *注意事项：无
  */
-void SysTick_Handler(void)
-{
-    g_SysTimeTicks++;
-    lv_tick_inc(1);
-    if(xTouch_Dev.Enable)
-        xTouch.Touch_CapScan();
-}
+//void SysTick_Handler(void)
+//{
+//    g_SysTimeTicks++;
+//    lv_tick_inc(1);
+//    if(xTouch_Dev.Enable)
+//        xTouch.Touch_CapScan();
+//}
 
 /******************************************************************************
  *函数名称：LPUART1_IRQHandler

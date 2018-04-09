@@ -13,6 +13,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "UsrInc.h"
 #include "lv_porting.h"
+#include <rthw.h>
+#include <rtthread.h>
 
 /******************************************************************************
  *函数名称：prvBoardInit
@@ -23,12 +25,8 @@
  */
 static void prvBoardInit()
 {
-    vBoard_ConfigMPU();
-    vBoard_BootClockRun();
-    SysTick_Config(SystemCoreClock / 1000);
     HalLedInit();
     HalLedBlink(HAL_LED_1,0,50,1000);
-    Hal_Uart_Init(UART_CH1,115200,true);
     Hal_Lcd_Init();
     Hal_Touch_Init();
 }
@@ -42,12 +40,12 @@ int main(void)
 {
     /* 板载外设初始化 */
     prvBoardInit();
-    lv_porting();
-    
-    while(1)
+//    lv_porting();
+
+    while (1)
     {
         HalLedUpdate();
-        SConf_DelayUS(200*1000);
+        rt_thread_delay(RT_TICK_PER_SECOND/10);
     }
 }
 

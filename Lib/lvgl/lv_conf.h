@@ -9,7 +9,13 @@
 /*----------------
  * User Extend Macro
  *----------------*/
+#define LV_GBK_SUPPORT              0
+
+#if LV_GBK_SUPPORT == 1
 #define LV_TEXT_UTF8(text)          ((const char *)lv_gbk2utf8_macro(text))
+#else
+#define LV_TEXT_UTF8(text)          (text)
+#endif
 
 /*----------------
  * Dynamic memory
