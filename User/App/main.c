@@ -27,7 +27,7 @@ static void prvBoardInit()
 {
     HalLedInit();
     HalLedBlink(HAL_LED_1,0,50,1000);
-    Hal_Lcd_Init();
+//    Hal_Lcd_Init();
 //    Hal_Touch_Init();
 }
 

@@ -110,11 +110,11 @@
         </CommonProperty>
         <DllOption>
           <SimDllName>SARMCM3.DLL</SimDllName>
-          <SimDllArguments> </SimDllArguments>
+          <SimDllArguments>-REMAP -MPU</SimDllArguments>
           <SimDlgDll>DCM.DLL</SimDlgDll>
           <SimDlgDllArguments>-pCM7</SimDlgDllArguments>
           <TargetDllName>SARMCM3.DLL</TargetDllName>
-          <TargetDllArguments></TargetDllArguments>
+          <TargetDllArguments>-MPU</TargetDllArguments>
           <TargetDlgDll>TCM.DLL</TargetDlgDll>
           <TargetDlgDllArguments>-pCM7</TargetDlgDllArguments>
         </DllOption>
@@ -335,7 +335,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--library_interface=armcc  --library_type=standardlib   --diag_suppress=66,1296,186,815,188,111</MiscControls>
-              <Define>SKIP_SYSCLK_INIT,CPU_MIMXRT1052DVL6A,SDRAM_MPU_INIT</Define>
+              <Define>SKIP_SYSCLK_INIT, CPU_MIMXRT1052DVL6A, FSL_SDK_ENABLE_DRIVER_CACHE_CONTROL=1, EVK_MCIMXRM, FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE, RT_USING_ARM_LIBC</Define>
               <Undefine></Undefine>
               <IncludePath>../../Lib/RTLib;../../Lib/Cmsis;../../User/App;../../User/HardWare;../../Lib/rt-thread;../../Lib/rt-thread/include;../../Lib/rt-thread/components/drivers/include;../../Lib/rt-thread/components/finsh;../../Lib/rt-thread/components/libc/compilers/armlibc;../../Lib/rt-thread/components/net/lwip-2.0.2/src;../../Lib/rt-thread/components/net/lwip-2.0.2/src/include;../../Lib/rt-thread/components/net/lwip-2.0.2/src/include/ipv4;../../Lib/rt-thread/components/net/lwip-2.0.2/src/arch/include;../../Lib/rt-thread/components/net/lwip-2.0.2/src/include/netif;../../Lib/rt-thread/components/net/lwip-2.0.2/src/include/posix;../../Lib/rt-thread/components/dfs/include;../../Lib/rt-thread/components/dfs/filesystems/devfs;../../Lib/rt-thread/components/dfs/filesystems/elmfat;../../Lib/lvgl;../../Lib/lv_port;../../Lib/lv_examples</IncludePath>
             </VariousControls>
@@ -366,12 +366,12 @@
             <RepFail>1</RepFail>
             <useFile>0</useFile>
             <TextAddressRange>0x00000000</TextAddressRange>
-            <DataAddressRange>0x20000000</DataAddressRange>
+            <DataAddressRange>0x10000000</DataAddressRange>
             <pXoBase></pXoBase>
             <ScatterFile>.\MIMXRT1052xxxxx_flexspi_nor.scf</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
-            <Misc></Misc>
+            <Misc>--keep *.o(.rti_fn.*)   --keep *.o(FSymTab) --keep *.o(VSymTab)</Misc>
             <LinkerInputFile></LinkerInputFile>
             <DisabledWarnings>6314</DisabledWarnings>
           </LDads>
@@ -441,6 +441,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Lib\RTLib\fsl_lpi2c.c</FilePath>
             </File>
+            <File>
+              <FileName>fsl_snvs_hp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Lib\RTLib\fsl_snvs_hp.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -462,6 +467,31 @@
           <GroupName>Drivers</GroupName>
           <Files>
             <File>
+              <FileName>board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\drv_uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_sdram.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\drv_sdram.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_pin.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\drv_pin.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\drv_rtc.c</FilePath>
+            </File>
+            <File>
               <FileName>Hal_Led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\HardWare\Hal_Led.c</FilePath>
@@ -470,16 +500,113 @@
               <FileName>Hal_Lcd.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\HardWare\Hal_Lcd.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>0</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>0</Optim>
+                    <oTime>2</oTime>
+                    <SplitLS>2</SplitLS>
+                    <OneElfS>2</OneElfS>
+                    <Strict>2</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>2</PlainCh>
+                    <Ropi>2</Ropi>
+                    <Rwpi>2</Rwpi>
+                    <wLevel>0</wLevel>
+                    <uThumb>2</uThumb>
+                    <uSurpInc>2</uSurpInc>
+                    <uC99>2</uC99>
+                    <uGnu>2</uGnu>
+                    <useXO>2</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>2</vShortEn>
+                    <vShortWch>2</vShortWch>
+                    <v6Lto>2</v6Lto>
+                    <v6WtE>2</v6WtE>
+                    <v6Rtti>2</v6Rtti>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
             </File>
             <File>
               <FileName>Hal_Lcd_Port.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\HardWare\Hal_Lcd_Port.c</FilePath>
-            </File>
-            <File>
-              <FileName>Touch_GT9xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\HardWare\Touch_GT9xx.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>0</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>0</Optim>
+                    <oTime>2</oTime>
+                    <SplitLS>2</SplitLS>
+                    <OneElfS>2</OneElfS>
+                    <Strict>2</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>2</PlainCh>
+                    <Ropi>2</Ropi>
+                    <Rwpi>2</Rwpi>
+                    <wLevel>0</wLevel>
+                    <uThumb>2</uThumb>
+                    <uSurpInc>2</uSurpInc>
+                    <uC99>2</uC99>
+                    <uGnu>2</uGnu>
+                    <useXO>2</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>2</vShortEn>
+                    <vShortWch>2</vShortWch>
+                    <v6Lto>2</v6Lto>
+                    <v6WtE>2</v6WtE>
+                    <v6Rtti>2</v6Rtti>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
             </File>
             <File>
               <FileName>Hal_I2C.c</FileName>
@@ -487,24 +614,116 @@
               <FilePath>..\..\User\HardWare\Hal_I2C.c</FilePath>
             </File>
             <File>
+              <FileName>Touch_GT9xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\Touch_GT9xx.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>0</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>0</Optim>
+                    <oTime>2</oTime>
+                    <SplitLS>2</SplitLS>
+                    <OneElfS>2</OneElfS>
+                    <Strict>2</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>2</PlainCh>
+                    <Ropi>2</Ropi>
+                    <Rwpi>2</Rwpi>
+                    <wLevel>0</wLevel>
+                    <uThumb>2</uThumb>
+                    <uSurpInc>2</uSurpInc>
+                    <uC99>2</uC99>
+                    <uGnu>2</uGnu>
+                    <useXO>2</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>2</vShortEn>
+                    <vShortWch>2</vShortWch>
+                    <v6Lto>2</v6Lto>
+                    <v6WtE>2</v6WtE>
+                    <v6Rtti>2</v6Rtti>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
+            </File>
+            <File>
               <FileName>Hal_Touch.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\HardWare\Hal_Touch.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\HardWare\drv_uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>board.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\HardWare\board.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_sdram.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\HardWare\drv_sdram.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>0</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>0</Optim>
+                    <oTime>2</oTime>
+                    <SplitLS>2</SplitLS>
+                    <OneElfS>2</OneElfS>
+                    <Strict>2</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>2</PlainCh>
+                    <Ropi>2</Ropi>
+                    <Rwpi>2</Rwpi>
+                    <wLevel>0</wLevel>
+                    <uThumb>2</uThumb>
+                    <uSurpInc>2</uSurpInc>
+                    <uC99>2</uC99>
+                    <uGnu>2</uGnu>
+                    <useXO>2</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>2</vShortEn>
+                    <vShortWch>2</vShortWch>
+                    <v6Lto>2</v6Lto>
+                    <v6WtE>2</v6WtE>
+                    <v6Rtti>2</v6Rtti>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
             </File>
           </Files>
         </Group>
@@ -675,6 +894,16 @@
               <FileName>serial.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Lib\rt-thread\components\drivers\serial\serial.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Lib\rt-thread\components\drivers\rtc\rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>pin.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Lib\rt-thread\components\drivers\misc\pin.c</FilePath>
             </File>
             <File>
               <FileName>completion.c</FileName>
@@ -1506,6 +1735,57 @@
               <FileName>lv_porting.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Lib\lv_port\lv_porting.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>0</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>0</Optim>
+                    <oTime>2</oTime>
+                    <SplitLS>2</SplitLS>
+                    <OneElfS>2</OneElfS>
+                    <Strict>2</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>2</PlainCh>
+                    <Ropi>2</Ropi>
+                    <Rwpi>2</Rwpi>
+                    <wLevel>0</wLevel>
+                    <uThumb>2</uThumb>
+                    <uSurpInc>2</uSurpInc>
+                    <uC99>2</uC99>
+                    <uGnu>2</uGnu>
+                    <useXO>2</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>2</vShortEn>
+                    <vShortWch>2</vShortWch>
+                    <v6Lto>2</v6Lto>
+                    <v6WtE>2</v6WtE>
+                    <v6Rtti>2</v6Rtti>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
             </File>
           </Files>
         </Group>
@@ -1946,6 +2226,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Lib\RTLib\fsl_lpi2c.c</FilePath>
             </File>
+            <File>
+              <FileName>fsl_snvs_hp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Lib\RTLib\fsl_snvs_hp.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1967,6 +2252,31 @@
           <GroupName>Drivers</GroupName>
           <Files>
             <File>
+              <FileName>board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\drv_uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_sdram.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\drv_sdram.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_pin.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\drv_pin.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\drv_rtc.c</FilePath>
+            </File>
+            <File>
               <FileName>Hal_Led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\HardWare\Hal_Led.c</FilePath>
@@ -1982,34 +2292,19 @@
               <FilePath>..\..\User\HardWare\Hal_Lcd_Port.c</FilePath>
             </File>
             <File>
-              <FileName>Touch_GT9xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\HardWare\Touch_GT9xx.c</FilePath>
-            </File>
-            <File>
               <FileName>Hal_I2C.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\HardWare\Hal_I2C.c</FilePath>
             </File>
             <File>
+              <FileName>Touch_GT9xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\HardWare\Touch_GT9xx.c</FilePath>
+            </File>
+            <File>
               <FileName>Hal_Touch.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\HardWare\Hal_Touch.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\HardWare\drv_uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>board.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\HardWare\board.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_sdram.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\HardWare\drv_sdram.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2180,6 +2475,16 @@
               <FileName>serial.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Lib\rt-thread\components\drivers\serial\serial.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Lib\rt-thread\components\drivers\rtc\rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>pin.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Lib\rt-thread\components\drivers\misc\pin.c</FilePath>
             </File>
             <File>
               <FileName>completion.c</FileName>
