@@ -120,6 +120,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
+          <Name>埐?P?w埐?P?w埐?</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -148,7 +149,7 @@
           <Type>0</Type>
           <LineNumber>120</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>1610642796</Address>
+          <Address>1610635188</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -164,7 +165,7 @@
           <Type>0</Type>
           <LineNumber>235</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>1610660106</Address>
+          <Address>1610652610</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -174,6 +175,22 @@
           <Filename>..\..\Lib\rt-thread\src\components.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\RT1052_Demo\../../Lib/rt-thread/src/components.c\235</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>47</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>1610640462</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\..\User\App\main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\RT1052_Demo\../../User/App/main.c\47</Expression>
         </Bp>
       </Breakpoint>
       <MemoryWindow1>
@@ -332,10 +349,6 @@
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
-          <Key>DLGUARM</Key>
-        </SetRegEntry>
-        <SetRegEntry>
-          <Number>0</Number>
           <Key>ARMRTXEVENTFLAGS</Key>
           <Name>-L70 -Z18 -C0 -M0 -T1</Name>
         </SetRegEntry>
@@ -398,6 +411,22 @@
           <Filename>..\..\Lib\Cmsis\system_MIMXRT1052.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\RT1052_Demo\../../Lib/Cmsis/system_MIMXRT1052.c\120</Expression>
+        </Bp>
+        <Bp>
+          <Number>3</Number>
+          <Type>0</Type>
+          <LineNumber>47</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\..\User\App\main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
         </Bp>
       </Breakpoint>
       <MemoryWindow1>

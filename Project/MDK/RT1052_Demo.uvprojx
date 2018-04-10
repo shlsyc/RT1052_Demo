@@ -335,7 +335,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--library_interface=armcc  --library_type=standardlib   --diag_suppress=66,1296,186,815,188,111</MiscControls>
-              <Define>CPU_MIMXRT1052DVL6A,SDRAM_MPU_INIT</Define>
+              <Define>SKIP_SYSCLK_INIT,CPU_MIMXRT1052DVL6A,SDRAM_MPU_INIT</Define>
               <Undefine></Undefine>
               <IncludePath>../../Lib/RTLib;../../Lib/Cmsis;../../User/App;../../User/HardWare;../../Lib/rt-thread;../../Lib/rt-thread/include;../../Lib/rt-thread/components/drivers/include;../../Lib/rt-thread/components/finsh;../../Lib/rt-thread/components/libc/compilers/armlibc;../../Lib/rt-thread/components/net/lwip-2.0.2/src;../../Lib/rt-thread/components/net/lwip-2.0.2/src/include;../../Lib/rt-thread/components/net/lwip-2.0.2/src/include/ipv4;../../Lib/rt-thread/components/net/lwip-2.0.2/src/arch/include;../../Lib/rt-thread/components/net/lwip-2.0.2/src/include/netif;../../Lib/rt-thread/components/net/lwip-2.0.2/src/include/posix;../../Lib/rt-thread/components/dfs/include;../../Lib/rt-thread/components/dfs/filesystems/devfs;../../Lib/rt-thread/components/dfs/filesystems/elmfat;../../Lib/lvgl;../../Lib/lv_port;../../Lib/lv_examples</IncludePath>
             </VariousControls>
@@ -353,7 +353,7 @@
             <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>__STARTUP_INITIALIZE_NONCACHEDATA</Define>
+              <Define></Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>
