@@ -1,2 +1,2 @@
 # RT1052_Demo
-RT1052 Demo Test
+RT1052 demo for bare test
